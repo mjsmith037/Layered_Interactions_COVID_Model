@@ -1,0 +1,10 @@
+"https://data.census.gov/cedsci/table?q=texas%20household%20size%20distribution&g=0100000US_0400000US12&tid=ACSST1Y2019.S2501
+https://www.miamidadematters.org/demographicdata?id=12&sectionId=936#sectionPiece_65
+https://www.census.gov/data/tables/time-series/demo/families/households.html
+https://demographics.texas.gov/Resources/publications/2021/20210415_HouseholdsTrendsProj_Brief.pdf?dt=20200922",,,,,,,,,
+,Number of people,,,,,,,,
+Locale,One,Two,Three,Four,Five,Six,Seven or more,Average number of people per household,Extrapolated values for over 3 to match average
+United States,36972,45515,19523,16098,7577,2635,1611,2.51,FALSE
+US_1960,6917,14678,9979,9293,6072,3010,2851,3.33,FALSE
+Texas,2560,3149,1611,665,665,668,668,2.84,TRUE
+Florida,2369,3012,1373,1025,503,213,136,2.49,FALSE
