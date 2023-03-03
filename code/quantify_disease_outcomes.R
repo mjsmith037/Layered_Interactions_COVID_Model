@@ -31,6 +31,13 @@ time_to_peak <- . %>%
   slice_max(n, with_ties=FALSE) %>%
   pull(time)
 
+# Time to peak death (proxy for hospitalization need)
+time_to_peak_death <- . %>%
+  filter(status == "Dead") %>%
+  mutate(change = n - lag(n)) %>% 
+  slice_max(change, with_ties=FALSE) %>%
+  pull(time) %>%
+  {ifelse(length(.) == 0, Inf, .)}
 # Maximum number infectious
 peak_infectious <- . %>%
   filter(status == "Asymptomatically Infectious" | status == "Symptomatically Infectious") %>%
@@ -46,7 +53,8 @@ summarize_epidemic <- . %>%
   summarise(!!!list("Total Infected"     = total_infected(.),
                     "Average Infectious" = average_infectious(.),
                     "Total Died"         = total_died(.),
-                    "Time to Peak"        = time_to_peak(.),
+                    "Time to Peak"       = time_to_peak(.),
+                    "Time to Peak Death" = time_to_peak_death(.),
                     "Maximum Infectious" = peak_infectious(.)))
 
 
@@ -66,4 +74,29 @@ time_to_vulnerable <- function(output, network) {
     filter(vulnerable == "Vulnerable", status == "Exposed", n > 0) %>%
     pull(time) %>%
     {ifelse(length(.) == 0, Inf, min(.))}
+}
+
+# number of vulnerable households infected
+vuln_households_inf <- function(output, network) {
+  tibble(status = output %>%
+           set_colnames(1:ncol(.)) %>%
+           as_tibble() %>%
+           mutate(across(everything(), . %>% factor(levels=0:5, labels=c("S", "E", "Ia", "Is", "R", "D")))) %>%
+           pull(),
+         house_id = network %N>%
+           as_tibble() %>%
+           pull(household_id),
+         house_vuln = network %N>%
+           as_tibble() %>%
+           group_by(household_id) %>%
+           mutate(any(vulnerable)) %>%
+           pull()) %>%
+    group_by(house_id) %>% 
+    summarise(house_vuln = unique(house_vuln),
+              house_inf = ifelse(all(status == "S"), "safe", "infected") %>%
+                factor(levels=c("safe", "infected")), .groups="drop") %>%
+    filter(house_vuln) %>%
+    tabyl(house_inf) %>%
+    filter(house_inf == "infected") %>%
+    pull(percent)
 }
